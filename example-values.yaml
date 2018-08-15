@@ -1,0 +1,50 @@
+ingress:
+  enabled: true
+  host: "spinnaker.mycompany.com"
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: "spinnaker.mycompany.com"
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/ingress.class: "nginx"
+  tls:
+   - secretName: my-company-com-tls
+     hosts:
+       - spinnaker.mycompany.com
+
+dockerRegistries:
+- address: "index.docker.io"
+  email: "mydockeraccount@mycompany.com"
+  name: "company-dockerhub"
+  password: "<dockerhub-password>"
+  username: "<dockerhub-username>"
+  repositories:
+    - company/dockerrepo1
+    - company/dockerrepo2
+    - personal/dockerrepo3
+
+kubeConfig:
+  enabled: false
+  contexts:
+  - my-kubernetes-cluster
+  deploymentContext: my-kubernetes-cluster
+
+rbac:
+  create: true
+
+minio:
+  enabled: false
+
+s3:
+  accessKey: "<aws-access-key>"
+  bucket: "<aws-spinnaker-bucket>"
+  enabled: true
+  region: "<aws-region>"
+  secretKey: "<aws-secret-key>"
+
+serviceAccount:
+  create: true
+
+spinnakerFeatureFlags:
+  - artifacts
+  - infrastructure-stages
+  - jobs
+  - pipeline-templates
