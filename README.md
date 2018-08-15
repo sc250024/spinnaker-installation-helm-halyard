@@ -1,20 +1,20 @@
 # Spinnaker installation on Kubernetes using (new!) Halyard-based Helm chart
 
-At [ParkBee](https://parkbee.com) we're experimenting with [Spinnaker](https://www.spinnaker.io/), Netflix's open-source continuous deployment (CD) solution. One aspect of Spinnaker became very clear from the beginning: just installing it can be a bit tricky. Most of the day-to-day work that DevOps / Infrastructure engineers do is related to linking things / systems together using the tools available; with that said, we believe installing the tool shouldn't be the hard part of that process, and that most time should be spent on developing pipelines for your development teams.
+At [ParkBee](https://parkbee.com) we're experimenting with [Spinnaker](https://www.spinnaker.io/), Netflix's open-source continuous deployment (CD) solution. One aspect of Spinnaker became very clear from the beginning: just installing it can be a bit tricky. Most of the day-to-day work that DevOps / Infrastructure engineers do is related to linking things / systems together using tools available; with that said, we believe installing the tool shouldn't be the hard part of that process, and that most time should be spent on developing pipelines for your development teams.
 
 Spinnaker is different. Unlike most modern cloud-native apps that run as a single process (usually in a Go binary), Spinnaker is actually a composite application of individual microservices. The architecture diagram listed on the website reveals the complexity of this app: https://www.spinnaker.io/reference/architecture/
 
 Luckily, there are great tools like [Helm](https://helm.sh/) available to us to make the installation, and release of new Kubernetes-based software very simple. We started experimenting with the ["pure" YAML version](https://github.com/helm/charts/tree/9f790ac4644387f2856bdbc4ab5f44feb52ddeee/stable/spinnaker) of the Spinnaker chart only to realize that dealing with the litany of configuration options to simply get Spinnaker to run was overwhelming. [My post on the r/devops sub-Reddit](https://www.reddit.com/r/devops/comments/90nomd/productiongrade_spinnaker_using_helm/) revealed the following from one of the chart's owners Vic Iglesias [(@viglesiasce)](https://github.com/viglesiasce):
 
 > The chart was intended to be a Quick Start for an arbitrary cluster to get people familiar with Spinnaker. As the Spinnaker feature set has expanded it has become unfeasible to keep up with all the functionality by leveraging static/templated config files as the current chart does.
-> 
+>
 > We have been working on a new version of the chart which provides the same functionality as the original (ie helm install gets you a working Spinnaker in any cluster). The main difference in this iteration is that it provisions and uses Halyard for all the config under the hood.
 
 Vic was nice enough to reference a PR he had been working on ([helm/charts#6407](https://github.com/helm/charts/pull/6407)) that utilizes Halyard instead of the pure, YAML based approach.
 
 ## Enter Halyard
 
-I won't go into the details of what Halyard is, but as the [Halyard GitHub repo](https://github.com/spinnaker/halyard) states:
+This post isn't a deep dive into Halyard itself, but as a quick introduction, the [Halyard GitHub repo](https://github.com/spinnaker/halyard) states:
 
 > [Halyard is] a tool for configuring, installing, and updating Spinnaker.
 
@@ -24,10 +24,10 @@ Lars Wander ([@lwander](https://github.com/lwander)), the other maintainer of th
 
 Rather than deploy YAML configurations directly, the new Halyard-based Helm chart deploys the following on installation:
 
-* A `StatefulSet` pod which runs the actual Halyard daemon, and is used by a cluster administrator to administer Spinnaker, or install other integrations.
 * A `Job` pod which runs the initial installation.
+* A `StatefulSet` pod which runs the actual Halyard daemon, and is used by a cluster administrator to administer Spinnaker, or install other integrations.
 
-Other pods that are installed will depend based on your own needs. For example, upon the initial installation, a Redis pod is spun up as well for later usage.
+Other pods that are installed will depend based on your own needs. For example, upon the initial installation, a Redis pod or Minio pod might be spun up as well.
 
 ## Installation
 
@@ -123,7 +123,7 @@ The long timeout period is needed for this deployment as it takes a while for Ha
 
 You will see the initial pods being created like so:
 
-![Initial installation pods](images/spinnaker-initial-install-pods.png)
+![Initial installation pods](https://raw.githubusercontent.com/sc250024/spinnaker-installation-helm-halyard/master/images/spinnaker-initial-install-pods.png)
 
 Once the pod with prefix `spinnaker-install-using-hal*` is running, you can monitor the installation using:
 
@@ -133,11 +133,13 @@ $ kubectl logs -f spinnaker-install-using-hal-fxn6r
 
 After some time, you will see that all of the new pods created by Halyard (with a base name of `spin`) have been created:
 
-![Installation finished](images/spinnaker-install-finished.png)
+![Installation finished](https://raw.githubusercontent.com/sc250024/spinnaker-installation-helm-halyard/master/images/spinnaker-install-finished.png)
 
-Go to the Ingress URL created, and you should see the following:
+Go to the Ingress URL created, and you should something like the following:
 
-![Installation finished](images/spinnaker-initial-frontend.png)
+![Installation finished](https://raw.githubusercontent.com/sc250024/spinnaker-installation-helm-halyard/master/images/spinnaker-post-install-screen.png)
+
+Since the Kubernetes provider is installed by default, you should see the **spinnaker** and **spin** applications created by the Helm installer.
 
 ## Additional configuration
 
@@ -165,7 +167,7 @@ And then deploy:
 $ hal deploy apply
 ```
 
-### AWS Cloud access
+### Cloud provider
 
 Since Spinnaker can create cloud resources for you as part of your deployments, let's configure Spinnaker for AWS.
 
@@ -313,7 +315,7 @@ And finally deploy:
 $ hal deploy apply
 ```
 
-Ensure your environment varibles aren't persisted in the BASH history:
+Ensure your environment varibles aren't persisted in the BASH history by exiting using this command:
 
 ```shell
 $ kill -9 $$
@@ -339,4 +341,8 @@ halyard:
 
 Spinnaker is a well-supported open-source product, and hopefully with this guide, you can evaluate and get it running for your own CD needs. ⎈ Happy Helming! ⎈
 
-Check out 
+I work for Parkbee. We develop smart tech. Our Mobility Management Solution optimises the use of underutilized parking space to get cars off the street and [KEEP YOUR CITY MOVING](https://keepyourcitymoving.com/).
+
+If you're in the Netherlands or the UK, check out [Parkbee's website](https://parkbee.com/) (we're hiring!)
+
+![ParkBee - KEEP YOUR CITY MOVING](https://keepyourcitymoving.com/wp-content/themes/kycm/build/img/logo/logo-parkbee@2x.png)
