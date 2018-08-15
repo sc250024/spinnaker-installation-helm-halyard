@@ -337,6 +337,15 @@ halyard:
     configMapKey: config.sh
 ```
 
+## Teardown
+
+After running through the demo, tear-down the installation:
+
+```shell
+$ helm delete --purge spinnaker
+$ kubectl delete ns spinnaker --grace-period=0
+```
+
 ## Conclusion
 
 Spinnaker is a well-supported open-source product, and hopefully with this guide, you can evaluate and get it running for your own CD needs. ⎈ Happy Helming! ⎈
