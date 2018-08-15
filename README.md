@@ -350,7 +350,7 @@ $ kubectl delete ns spinnaker --grace-period=0
 
 Spinnaker is a well-supported open-source product, and hopefully with this guide, you can evaluate and get it running for your own CD needs. ⎈ Happy Helming! ⎈
 
-I work for Parkbee. We develop smart tech. Our Mobility Management Solution optimises the use of underutilized parking space to get cars off the street and [KEEP YOUR CITY MOVING](https://keepyourcitymoving.com/).
+I work for Parkbee. We develop smart tech. Our Mobility Management Solution optimizes the use of underutilized parking space to get cars off the street and [KEEP YOUR CITY MOVING](https://keepyourcitymoving.com/).
 
 If you're in the Netherlands or the UK, check out [Parkbee's website](https://parkbee.com/) (we're hiring!)
 
