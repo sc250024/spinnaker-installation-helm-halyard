@@ -1,10 +1,10 @@
 # Spinnaker installation on Kubernetes using (new!) Halyard-based Helm chart
 
-At [ParkBee](https://parkbee.com) we're experimenting with [Spinnaker](https://www.spinnaker.io/), Netflix's open-source continuous deployment (CD) solution. One aspect of Spinnaker became very clear from the beginning: just installing it can be a bit tricky. Most of the day-to-day work that DevOps / Infrastructure engineers do is related to linking things / systems together using tools available; with that said, we believe installing the tool shouldn't be the hard part of that process, and that most time should be spent on developing pipelines for your development teams.
+At [ParkBee](https://parkbee.com) we're experimenting with [Spinnaker](https://www.spinnaker.io/), Netflix's open-source continuous deployment (CD) solution. One aspect of Spinnaker became very clear from the beginning: just installing it can be a bit tricky. Most of the day-to-day work that DevOps / Infrastructure engineers do is related to linking things / systems together using tools available; with that said, we believe installing the tool shouldn't be the hard part of that process, and that most time should be spent on creating and improving pipelines for your development teams.
 
 Spinnaker is different. Unlike most modern cloud-native apps that run as a single process (usually in a Go binary), Spinnaker is actually a composite application of individual microservices. The architecture diagram listed on the website reveals the complexity of this app: https://www.spinnaker.io/reference/architecture/
 
-Luckily, there are great tools like [Helm](https://helm.sh/) available to us to make the installation, and release of new Kubernetes-based software very simple. We started experimenting with the ["pure" YAML version](https://github.com/helm/charts/tree/9f790ac4644387f2856bdbc4ab5f44feb52ddeee/stable/spinnaker) of the Spinnaker chart only to realize that dealing with the litany of configuration options to simply get Spinnaker to run was overwhelming. [My post on the r/devops sub-Reddit](https://www.reddit.com/r/devops/comments/90nomd/productiongrade_spinnaker_using_helm/) revealed the following from one of the chart's owners Vic Iglesias [(@viglesiasce)](https://github.com/viglesiasce):
+Luckily, there are great tools like [Helm](https://helm.sh/) available to us to make the installation, and release of new software on Kubernetes very simple. We started experimenting with the ["pure" YAML version](https://github.com/helm/charts/tree/9f790ac4644387f2856bdbc4ab5f44feb52ddeee/stable/spinnaker) of the Spinnaker chart only to realize that dealing with the litany of configuration options to simply get Spinnaker to run was overwhelming. [My post on the r/devops sub-Reddit](https://www.reddit.com/r/devops/comments/90nomd/productiongrade_spinnaker_using_helm/) revealed the following from one of the chart's owners, Vic Iglesias [(@viglesiasce)](https://github.com/viglesiasce):
 
 > The chart was intended to be a Quick Start for an arbitrary cluster to get people familiar with Spinnaker. As the Spinnaker feature set has expanded it has become unfeasible to keep up with all the functionality by leveraging static/templated config files as the current chart does.
 >
@@ -22,16 +22,18 @@ Lars Wander ([@lwander](https://github.com/lwander)), the other maintainer of th
 
 ## How the new Halyard-based chart works
 
-Rather than deploy YAML configurations directly, the new Halyard-based Helm chart deploys the following on installation:
+Most Helm charts are essentially YAML with some Mustache templating built in to make the generation of Kubernetes YAML manifests easier. Rather than deploy YAML configurations directly, the new Halyard-based Helm chart deploys the following on installation:
 
 * A `Job` pod which runs the initial installation.
-* A `StatefulSet` pod which runs the actual Halyard daemon, and is used by a cluster administrator to administer Spinnaker, or install other integrations.
+* A `StatefulSet` pod which runs the actual Halyard daemon (used by the aforementioned pod on initial installation), and is used by a cluster administrator to administer Spinnaker.
 
-Other pods that are installed will depend based on your own needs. For example, upon the initial installation, a Redis pod or Minio pod might be spun up as well.
+Other pods that are installed will depend based on your own needs. For example, upon the initial installation, a Redis pod or Minio pod might be spun up as well if you choose to use those services.
 
 ## Installation
 
-Now let's get to the installation. Once this PR ([helm/charts#6407](https://github.com/helm/charts/pull/6407)) is merged the new chart will be available in the `stable` channel from the default Kubernetes chart repository. I'm assuming you already have the following set up:
+Now let's get to the installation. Once this PR ([helm/charts#6407](https://github.com/helm/charts/pull/6407)) is merged the new chart will be available in the `stable` channel from the default Kubernetes chart repository. If it's not merged, you can still use the chart, but you should do a `git clone` of Vic's repository here: [https://github.com/viglesiasce/charts](https://github.com/viglesiasce/charts). The new Halyard-based chart is located in the [spin-v1.0.0](https://github.com/viglesiasce/charts/tree/spin-v1.0.0) branch. Anytime you see `stable/spinnaker`, you can just directly point to the Git repository on your local computer, e.g. `/some/path/to/viglesiasce-charts/stable/spinnaker`.
+
+This article assumes you already have the following set up:
 
 * Kubernetes cluster with enough resources. **NOTE**: This probably should not be run locally, although you're free to try; just keep in mind that this is a large deployment of around 10 pods.
 * Helm
@@ -128,7 +130,7 @@ You will see the initial pods being created like so:
 Once the pod with prefix `spinnaker-install-using-hal*` is running, you can monitor the installation using:
 
 ```shell
-$ kubectl logs -f spinnaker-install-using-hal-fxn6r
+$ kubectl logs -f spinnaker-install-using-hal-x2gk9
 ```
 
 After some time, you will see that all of the new pods created by Halyard (with a base name of `spin`) have been created:
