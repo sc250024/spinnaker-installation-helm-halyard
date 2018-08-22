@@ -1,5 +1,7 @@
 # Spinnaker installation on Kubernetes using (new!) Halyard-based Helm chart
 
+![Spinnaker](https://upload.wikimedia.org/wikipedia/commons/b/b1/C%26C_99_Sailboat_99095_Spinnaker_Run.jpg)
+
 At [ParkBee](https://parkbee.com) we're experimenting with [Spinnaker](https://www.spinnaker.io/), Netflix's open-source continuous deployment (CD) solution. One aspect of Spinnaker became very clear from the beginning: just installing it can be a bit tricky. Most of the day-to-day work that DevOps / Infrastructure engineers do is related to linking things / systems together using tools available; with that said, we believe installing the tool shouldn't be the hard part of that process, and that most time should be spent on creating and improving pipelines for your development teams.
 
 Spinnaker is different. Unlike most modern cloud-native apps that run as a single process (usually in a Go binary), Spinnaker is actually a composite application of individual microservices. The architecture diagram listed on the website reveals the complexity of this app: https://www.spinnaker.io/reference/architecture/
